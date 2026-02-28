@@ -552,14 +552,10 @@ std::ostream &operator<<(std::ostream &os, const int2048 &value) {
   os << value.digits_.back();
   for (int i = static_cast<int>(value.digits_.size()) - 2; i >= 0; --i) {
     int x = value.digits_[i];
-    if (x < 1000) {
+    int pad = int2048::BASE / 10;
+    while (pad > 1 && x < pad) {
       os << '0';
-    }
-    if (x < 100) {
-      os << '0';
-    }
-    if (x < 10) {
-      os << '0';
+      pad /= 10;
     }
     os << x;
   }

@@ -20,8 +20,8 @@
 namespace sjtu {
 class int2048 {
 private:
-  static const int BASE = 10000;
-  static const int BASE_DIGS = 4;
+  static const int BASE = 100;
+  static const int BASE_DIGS = 2;
 
   std::vector<int> digits_;
   bool negative_;
