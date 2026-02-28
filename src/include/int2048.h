@@ -19,7 +19,32 @@
 
 namespace sjtu {
 class int2048 {
-  // todo
+private:
+  static const int BASE = 10000;
+  static const int BASE_DIGS = 4;
+
+  std::vector<int> digits_;
+  bool negative_;
+
+  bool isZero() const;
+  void normalize();
+
+  static int absCompare(const int2048 &, const int2048 &);
+  static std::vector<int> multiplySimple(const std::vector<int> &, const std::vector<int> &);
+  static void fft(std::vector<std::complex<double>> &, bool);
+  static std::vector<int> multiplyFFT(const std::vector<int> &, const std::vector<int> &);
+  static std::vector<int> multiplyDigits(const std::vector<int> &, const std::vector<int> &);
+
+  static void trimVector(std::vector<int> &);
+  static std::vector<int> mulVectorInt(const std::vector<int> &, int);
+  static std::vector<int> divVectorInt(const std::vector<int> &, int);
+  static int cmpVector(const std::vector<int> &, const std::vector<int> &);
+  static void divmodAbsVectors(const std::vector<int> &, const std::vector<int> &, std::vector<int> &, std::vector<int> &);
+  static void divmodFloor(const int2048 &, const int2048 &, int2048 &, int2048 &);
+
+  void addAbs(const int2048 &);
+  void subAbs(const int2048 &);
+
 public:
   // Constructors
   int2048();
