@@ -269,72 +269,50 @@ void int2048::divmodAbsVectors(const std::vector<int> &a, const std::vector<int>
     return;
   }
 
-  const int norm = BASE / (b.back() + 1);
-  std::vector<int> u = mulVectorInt(a, norm);
-  std::vector<int> v = mulVectorInt(b, norm);
-  u.push_back(0);
+  q.assign(a.size(), 0);
+  std::vector<int> rem(1, 0);
 
-  const int n = static_cast<int>(u.size());
-  const int m = static_cast<int>(v.size());
-  q.assign(n - m, 0);
+  for (int i = static_cast<int>(a.size()) - 1; i >= 0; --i) {
+    if (rem.size() == 1 && rem[0] == 0) {
+      rem[0] = a[i];
+    } else {
+      rem.insert(rem.begin(), a[i]);
+    }
+    trimVector(rem);
 
-  for (int j = n - m - 1; j >= 0; --j) {
-    long long numerator = 1LL * u[j + m] * BASE + u[j + m - 1];
-    long long qhat = numerator / v[m - 1];
-    long long rhat = numerator % v[m - 1];
-
-    if (qhat >= BASE) {
-      qhat = BASE - 1;
+    int s1 = rem.size() <= b.size() ? 0 : rem[b.size()];
+    int s2 = rem.size() <= b.size() - 1 ? 0 : rem[b.size() - 1];
+    int digit = static_cast<int>((1LL * BASE * s1 + s2) / b.back());
+    if (digit >= BASE) {
+      digit = BASE - 1;
     }
 
-    while (qhat * v[m - 2] > 1LL * BASE * rhat + u[j + m - 2]) {
-      --qhat;
-      rhat += v[m - 1];
-      if (rhat >= BASE) {
-        break;
+    std::vector<int> prod = mulVectorInt(b, digit);
+    while (cmpVector(rem, prod) < 0) {
+      --digit;
+      prod = mulVectorInt(b, digit);
+    }
+
+    int borrow = 0;
+    for (size_t j = 0; j < rem.size(); ++j) {
+      int cur = rem[j] - borrow;
+      if (j < prod.size()) {
+        cur -= prod[j];
       }
-    }
-
-    long long borrow = 0;
-    long long carry = 0;
-    for (int i = 0; i < m; ++i) {
-      long long prod = qhat * v[i] + carry;
-      carry = prod / BASE;
-      long long sub = static_cast<long long>(u[j + i]) - (prod % BASE) - borrow;
-      if (sub < 0) {
-        sub += BASE;
+      if (cur < 0) {
+        cur += BASE;
         borrow = 1;
       } else {
         borrow = 0;
       }
-      u[j + i] = static_cast<int>(sub);
+      rem[j] = cur;
     }
-
-    long long sub = static_cast<long long>(u[j + m]) - carry - borrow;
-    if (sub < 0) {
-      --qhat;
-      long long carry2 = 0;
-      for (int i = 0; i < m; ++i) {
-        long long sum = static_cast<long long>(u[j + i]) + v[i] + carry2;
-        if (sum >= BASE) {
-          sum -= BASE;
-          carry2 = 1;
-        } else {
-          carry2 = 0;
-        }
-        u[j + i] = static_cast<int>(sum);
-      }
-      u[j + m] += static_cast<int>(carry2);
-    } else {
-      u[j + m] = static_cast<int>(sub);
-    }
-
-    q[j] = static_cast<int>(qhat);
+    trimVector(rem);
+    q[i] = digit;
   }
 
   trimVector(q);
-  r.assign(u.begin(), u.begin() + m);
-  r = divVectorInt(r, norm);
+  r = rem;
   trimVector(r);
 }
 
